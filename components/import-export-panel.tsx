@@ -250,6 +250,7 @@ export default function ImportExportPanel({ relationships, onImport, onCancel }:
                   <SelectItem value="basic">Basic Example (3 Relationships)</SelectItem>
                   <SelectItem value="complex">Complex Example (5+ Relationships)</SelectItem>
                   <SelectItem value="analysis">Analysis Test Data</SelectItem>
+                  <SelectItem value="musk">Musk Relationship Data</SelectItem>
                 </SelectContent>
               </Select>
             </div>
