@@ -29,6 +29,7 @@ export default function BlogPage() {
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null)
   const [postToDelete, setPostToDelete] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [submitting, setSubmitting] = useState(false)
 
   // Load posts from Supabase
   useEffect(() => {
@@ -53,6 +54,7 @@ export default function BlogPage() {
   }, [toast])
 
   const handleAddPost = async (post: BlogPost) => {
+    setSubmitting(true)
     try {
       const savedPost = await saveBlogPost(post)
 
@@ -65,7 +67,8 @@ export default function BlogPage() {
         return
       }
 
-      setPosts([savedPost, ...posts.filter((p) => p.id !== savedPost.id)])
+      // Update posts state with the new post
+      setPosts((prevPosts) => [savedPost, ...prevPosts.filter((p) => p.id !== savedPost.id)])
       setShowAddForm(false)
 
       toast({
@@ -79,6 +82,8 @@ export default function BlogPage() {
         description: "Failed to add blog post",
         variant: "destructive",
       })
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -87,6 +92,7 @@ export default function BlogPage() {
   }
 
   const handleUpdatePost = async (updatedPost: BlogPost) => {
+    setSubmitting(true)
     try {
       const savedPost = await saveBlogPost(updatedPost)
 
@@ -99,7 +105,7 @@ export default function BlogPage() {
         return
       }
 
-      setPosts(posts.map((p) => (p.id === savedPost.id ? savedPost : p)))
+      setPosts((prevPosts) => prevPosts.map((p) => (p.id === savedPost.id ? savedPost : p)))
       setEditingPost(null)
 
       toast({
@@ -113,6 +119,8 @@ export default function BlogPage() {
         description: "Failed to update blog post",
         variant: "destructive",
       })
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -122,6 +130,7 @@ export default function BlogPage() {
 
   const confirmDeletePost = async () => {
     if (postToDelete) {
+      setSubmitting(true)
       try {
         const success = await deleteBlogPost(postToDelete)
 
@@ -134,7 +143,7 @@ export default function BlogPage() {
           return
         }
 
-        setPosts(posts.filter((p) => p.id !== postToDelete))
+        setPosts((prevPosts) => prevPosts.filter((p) => p.id !== postToDelete))
         setPostToDelete(null)
 
         toast({
@@ -148,6 +157,8 @@ export default function BlogPage() {
           description: "Failed to delete blog post",
           variant: "destructive",
         })
+      } finally {
+        setSubmitting(false)
       }
     }
   }
@@ -155,9 +166,9 @@ export default function BlogPage() {
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Elon Musk Blog</h1>
+        <h1 className="text-3xl font-bold gradient-text from-primary to-primary/70">Elon Musk Blog</h1>
         {isLoggedIn && (
-          <Button onClick={() => setShowAddForm(true)} className="gap-2">
+          <Button onClick={() => setShowAddForm(true)} className="gap-2 btn-primary">
             <PlusCircle className="h-4 w-4" />
             Add Post
           </Button>
@@ -169,8 +180,13 @@ export default function BlogPage() {
           <RefreshCw className="h-8 w-8 animate-spin text-primary" />
         </div>
       ) : posts.length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">
-          No blog posts yet. {isLoggedIn && "Click 'Add Post' to create one."}
+        <div className="text-center py-12 text-muted-foreground bg-muted/30 rounded-lg p-8">
+          <p className="text-lg">No blog posts yet.</p>
+          {isLoggedIn && (
+            <p className="mt-2">
+              Click <span className="text-primary font-medium">'Add Post'</span> to create one.
+            </p>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -181,29 +197,38 @@ export default function BlogPage() {
       )}
 
       {/* Add Post Dialog */}
-      <Dialog open={showAddForm} onOpenChange={setShowAddForm}>
+      <Dialog open={showAddForm} onOpenChange={(open) => !submitting && setShowAddForm(open)}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
-            <DialogTitle>Add New Blog Post</DialogTitle>
+            <DialogTitle className="text-xl font-bold">Add New Blog Post</DialogTitle>
           </DialogHeader>
-          <BlogForm onSubmit={handleAddPost} onCancel={() => setShowAddForm(false)} />
+          <BlogForm 
+            onSubmit={handleAddPost} 
+            onCancel={() => setShowAddForm(false)} 
+            isSubmitting={submitting} 
+          />
         </DialogContent>
       </Dialog>
 
       {/* Edit Post Dialog */}
-      <Dialog open={!!editingPost} onOpenChange={(open) => !open && setEditingPost(null)}>
+      <Dialog open={!!editingPost} onOpenChange={(open) => !submitting && !open && setEditingPost(null)}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
-            <DialogTitle>Edit Blog Post</DialogTitle>
+            <DialogTitle className="text-xl font-bold">Edit Blog Post</DialogTitle>
           </DialogHeader>
           {editingPost && (
-            <BlogForm initialData={editingPost} onSubmit={handleUpdatePost} onCancel={() => setEditingPost(null)} />
+            <BlogForm 
+              initialData={editingPost} 
+              onSubmit={handleUpdatePost} 
+              onCancel={() => setEditingPost(null)} 
+              isSubmitting={submitting}
+            />
           )}
         </DialogContent>
       </Dialog>
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={!!postToDelete} onOpenChange={(open) => !open && setPostToDelete(null)}>
+      <AlertDialog open={!!postToDelete} onOpenChange={(open) => !submitting && !open && setPostToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
@@ -212,9 +237,13 @@ export default function BlogPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDeletePost} className="bg-destructive text-destructive-foreground">
-              Delete
+            <AlertDialogCancel disabled={submitting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDeletePost} 
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={submitting}
+            >
+              {submitting ? "Deleting..." : "Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -222,4 +251,3 @@ export default function BlogPage() {
     </div>
   )
 }
-
