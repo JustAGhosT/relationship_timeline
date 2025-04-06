@@ -45,6 +45,20 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 221 83% 53%;
     
+    /* Alert Colors */
+    --warning: 38 92% 50%;
+    --warning-foreground: 38 92% 10%;
+    --warning-background: 38 92% 95%;
+    --warning-border: 38 92% 85%;
+    --info: 220 70% 50%;
+    --info-foreground: 220 70% 10%;
+    --info-background: 220 70% 95%;
+    --info-border: 220 70% 85%;
+    --success: 142 71% 45%;
+    --success-foreground: 142 71% 10%;
+    --success-background: 142 71% 95%;
+    --success-border: 142 71% 85%;
+    
     /* Vibrant Chart Colors */
     --chart-1: 221 83% 53%;
     --chart-2: 142 71% 45%;
@@ -67,30 +81,56 @@
     --heading-2: 222 47% 11%;
     --heading-3: 222 47% 11%;
     
+    /* Stats Section */
+    --stats-background: 210 40% 96.1%;
+    --stats-border: 214.3 31.8% 91.4%;
+    --stats-number: 221 83% 53%;
+    --stats-text: 215.4 16.3% 46.9%;
+    
+    /* Hero Section */
+    --hero-background-from: 0 0% 100%;
+    --hero-background-to: 210 40% 96.1%;
+    --hero-text: 222 47% 11%;
+    --hero-description: 215.4 16.3% 46.9%;
+    
     --radius: 0.5rem;
   }
 
   .dark {
-    /* Modern Dark Theme */
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
+    /* Enhanced Dark Theme */
+    --background: 222 47% 9%;
+    --foreground: 213 31% 91%;
     --card: 222 47% 11%;
-    --card-foreground: 210 40% 98%;
+    --card-foreground: 213 31% 91%;
     --popover: 222 47% 11%;
-    --popover-foreground: 210 40% 98%;
+    --popover-foreground: 213 31% 91%;
     --primary: 217.2 91.2% 59.8%;
     --primary-foreground: 222 47% 11%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 217.2 32.6% 18.5%;
+    --secondary-foreground: 213 31% 91%;
     --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted-foreground: 215 20.2% 70%;
     --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
+    --accent-foreground: 213 31% 91%;
+    --destructive: 0 62.8% 50.6%;
+    --destructive-foreground: 213 31% 91%;
+    --border: 217.2 32.6% 20.5%;
+    --input: 217.2 32.6% 20.5%;
+    --ring: 224.3 76.3% 60%;
+    
+    /* Alert Colors for Dark Mode */
+    --warning: 38 92% 50%;
+    --warning-foreground: 38 92% 90%;
+    --warning-background: 38 92% 15%;
+    --warning-border: 38 92% 25%;
+    --info: 220 70% 50%;
+    --info-foreground: 220 70% 90%;
+    --info-background: 220 70% 15%;
+    --info-border: 220 70% 25%;
+    --success: 142 71% 45%;
+    --success-foreground: 142 71% 90%;
+    --success-background: 142 71% 15%;
+    --success-border: 142 71% 25%;
     
     /* Vibrant Chart Colors for Dark Mode */
     --chart-1: 217.2 91.2% 59.8%;
@@ -100,19 +140,31 @@
     --chart-5: 262 83% 58%;
     
     /* Sidebar Styling for Dark Mode */
-    --sidebar-background: 224 71% 4%;
+    --sidebar-background: 224 71% 6%;
     --sidebar-foreground: 213 31% 91%;
     --sidebar-primary: 217.2 91.2% 59.8%;
     --sidebar-primary-foreground: 222 47% 11%;
     --sidebar-accent: 216 34% 17%;
-    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-accent-foreground: 213 31% 91%;
     --sidebar-border: 215 28% 17%;
     --sidebar-ring: 224.3 76.3% 48%;
     
     /* Heading Colors for Dark Mode */
-    --heading-1: 210 40% 98%;
-    --heading-2: 210 40% 98%;
-    --heading-3: 210 40% 98%;
+    --heading-1: 213 31% 95%;
+    --heading-2: 213 31% 95%;
+    --heading-3: 213 31% 95%;
+    
+    /* Stats Section for Dark Mode */
+    --stats-background: 222 47% 12%;
+    --stats-border: 217.2 32.6% 20.5%;
+    --stats-number: 217.2 91.2% 59.8%;
+    --stats-text: 215 20.2% 70%;
+    
+    /* Hero Section for Dark Mode */
+    --hero-background-from: 222 47% 13%;
+    --hero-background-to: 222 47% 10%;
+    --hero-text: 213 31% 95%;
+    --hero-description: 215 20.2% 75%;
   }
 }
 
@@ -131,7 +183,7 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
   
-  /* Header styles with explicit color definitions */
+  /* Enhanced Header styles with explicit color definitions */
   h1 {
     color: hsl(var(--heading-1));
     @apply text-3xl font-bold tracking-tight;
@@ -200,5 +252,56 @@
   .dialog-title {
     color: hsl(var(--heading-2));
     @apply text-xl font-bold;
+  }
+  
+  /* Hero section styles */
+  .hero-section {
+    @apply bg-gradient-to-b rounded-xl border shadow-sm;
+    background-color: hsl(var(--hero-background-from));
+    background-image: linear-gradient(to bottom, 
+      hsl(var(--hero-background-from)), 
+      hsl(var(--hero-background-to))
+    );
+  }
+  
+  .hero-title {
+    color: hsl(var(--hero-text));
+  }
+  
+  .hero-description {
+    color: hsl(var(--hero-description));
+  }
+  
+  /* Stats section styles */
+  .stats-section {
+    background-color: hsl(var(--stats-background));
+    border-color: hsl(var(--stats-border));
+  }
+  
+  .stats-number {
+    color: hsl(var(--stats-number));
+  }
+  
+  .stats-text {
+    color: hsl(var(--stats-text));
+  }
+  
+  /* Alert box styles */
+  .alert-warning {
+    color: hsl(var(--warning-foreground));
+    background-color: hsl(var(--warning-background));
+    border-color: hsl(var(--warning-border));
+  }
+  
+  .alert-info {
+    color: hsl(var(--info-foreground));
+    background-color: hsl(var(--info-background));
+    border-color: hsl(var(--info-border));
+  }
+  
+  .alert-success {
+    color: hsl(var(--success-foreground));
+    background-color: hsl(var(--success-background));
+    border-color: hsl(var(--success-border));
   }
 }

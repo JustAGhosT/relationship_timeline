@@ -68,20 +68,20 @@ export default function HomePage() {
   return (
     <div className="container mx-auto py-8 px-4">
       {/* Hero Section */}
-      <section className="py-12 md:py-24 lg:py-32 bg-gradient-to-b from-white to-gray-50 rounded-xl border shadow-sm mb-16">
+      <section className="py-12 md:py-24 lg:py-32 hero-section mb-16">
         <div className="container px-4 md:px-6">
           <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
             <div className="flex flex-col justify-center space-y-4">
               <div className="space-y-2">
-                <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
+                <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none hero-title">
                   The Complete Elon Musk Timeline
                 </h1>
-                <p className="max-w-[600px] text-gray-500 md:text-xl">
+                <p className="max-w-[600px] hero-description md:text-xl">
                   Explore the most comprehensive interactive timeline of Elon Musk's life, career, and
                   relationships—including confirmed events, rumored connections, and speculative future developments
                   through April 2025.
                 </p>
-                <div className="flex items-center gap-2 mt-4 text-amber-600 bg-amber-50 p-3 rounded-lg border border-amber-200">
+                <div className="flex items-center gap-2 mt-4 alert-warning p-3 rounded-lg border">
                   <AlertTriangle className="h-5 w-5 flex-shrink-0" />
                   <p className="text-sm">
                     This timeline includes both verified facts and unconfirmed reports. Future events and some
@@ -108,7 +108,7 @@ export default function HomePage() {
                 )}
               </div>
             </div>
-            <div className="mx-auto aspect-video overflow-hidden rounded-xl object-cover sm:w-full lg:order-last">
+            <div className="mx-auto aspect-video overflow-hidden rounded-xl object-cover sm:w-full lg:order-last border border-border">
               <Image
                 src="/placeholder.svg?height=400&width=600"
                 alt="Elon Musk Timeline"
@@ -132,7 +132,7 @@ export default function HomePage() {
               <CardDescription>Chronological view of Elon Musk's personal and professional life</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-500">
+              <p className="text-muted-foreground">
                 Explore key events in Elon Musk's life and career through an interactive timeline. Toggle between
                 personal and career events.
               </p>
@@ -153,7 +153,7 @@ export default function HomePage() {
               <CardDescription>Interactive visualization of Elon Musk's relationships</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-500">
+              <p className="text-muted-foreground">
                 Visualize Elon Musk's relationships and children with detailed analysis of overlaps and timeline
                 inconsistencies.
               </p>
@@ -174,7 +174,7 @@ export default function HomePage() {
               <CardDescription>Latest news and articles about Elon Musk</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-500">
+              <p className="text-muted-foreground">
                 Read and manage blog posts about Elon Musk's companies, achievements, and latest news.
               </p>
             </CardContent>
@@ -190,28 +190,28 @@ export default function HomePage() {
       </section>
 
       {/* Timeline Stats Section */}
-      <section className="mb-16 bg-gray-50 p-8 rounded-xl border">
+      <section className="mb-16 stats-section p-8 rounded-xl border">
         <h2 className="text-2xl font-bold text-center mb-8">Timeline Statistics</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           <div className="text-center">
-            <div className="text-4xl font-bold text-primary mb-2">7+</div>
-            <div className="text-sm text-gray-500">Major Relationships</div>
+            <div className="text-4xl font-bold stats-number mb-2">7+</div>
+            <div className="text-sm stats-text">Major Relationships</div>
           </div>
           <div className="text-center">
-            <div className="text-4xl font-bold text-primary mb-2">12+</div>
-            <div className="text-sm text-gray-500">Children</div>
+            <div className="text-4xl font-bold stats-number mb-2">12+</div>
+            <div className="text-sm stats-text">Children</div>
           </div>
           <div className="text-center">
-            <div className="text-4xl font-bold text-primary mb-2">30+</div>
-            <div className="text-sm text-gray-500">Career Milestones</div>
+            <div className="text-4xl font-bold stats-number mb-2">30+</div>
+            <div className="text-sm stats-text">Career Milestones</div>
           </div>
           <div className="text-center">
-            <div className="text-4xl font-bold text-primary mb-2">50+</div>
-            <div className="text-sm text-gray-500">Key Life Events</div>
+            <div className="text-4xl font-bold stats-number mb-2">50+</div>
+            <div className="text-sm stats-text">Key Life Events</div>
           </div>
         </div>
         <div className="flex justify-center mt-8">
-          <div className="flex items-center gap-2 text-amber-600 bg-amber-50 p-3 rounded-lg border border-amber-200 max-w-2xl">
+          <div className="flex items-center gap-2 alert-info p-3 rounded-lg border max-w-2xl">
             <Info className="h-5 w-5 flex-shrink-0" />
             <p className="text-sm">
               Our timeline includes both verified public information and speculative data based on reports and analysis.
@@ -246,22 +246,22 @@ export default function HomePage() {
       </section>
 
       {/* About Section */}
-      <section className="bg-gray-50 p-8 rounded-xl border mb-16">
+      <section className="stats-section p-8 rounded-xl border mb-16">
         <div className="flex flex-col md:flex-row gap-8 items-center">
           <div className="md:w-1/2">
             <h2 className="text-2xl font-bold mb-4">About This Project</h2>
-            <p className="text-gray-600 mb-4">
+            <p className="text-muted-foreground mb-4">
               This interactive application provides a comprehensive view of Elon Musk's life, career, and relationships.
               It features timeline visualizations, relationship analysis, and a blog with the latest news.
             </p>
-            <p className="text-gray-600">
+            <p className="text-muted-foreground">
               The application is built with Next.js and uses Supabase for data storage, providing a responsive and
               interactive user experience with persistent data.
             </p>
           </div>
           <div className="md:w-1/2 flex justify-center">
             <div className="flex flex-col items-center">
-              <Github className="h-16 w-16 text-gray-700 mb-4" />
+              <Github className="h-16 w-16 text-foreground mb-4" />
               <Button variant="outline">View Source Code</Button>
             </div>
           </div>
@@ -270,4 +270,3 @@ export default function HomePage() {
     </div>
   )
 }
-
