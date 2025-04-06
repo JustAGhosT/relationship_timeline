@@ -45,6 +45,13 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 221 83% 53%;
     
+    /* Dialog Colors */
+    --dialog-background: 0 0% 100%;
+    --dialog-foreground: 222 47% 11%;
+    --dialog-border: 214.3 31.8% 91.4%;
+    --dialog-title: 222 47% 11%;
+    --dialog-description: 215.4 16.3% 46.9%;
+    
     /* Alert Colors */
     --warning: 38 92% 50%;
     --warning-foreground: 38 92% 10%;
@@ -93,6 +100,13 @@
     --hero-text: 222 47% 11%;
     --hero-description: 215.4 16.3% 46.9%;
     
+    /* Form Elements */
+    --form-label: 222 47% 11%;
+    --form-input-bg: 0 0% 100%;
+    --form-input-border: 214.3 31.8% 91.4%;
+    --form-input-text: 222 47% 11%;
+    --form-placeholder: 215.4 16.3% 46.9%;
+    
     --radius: 0.5rem;
   }
 
@@ -117,6 +131,13 @@
     --border: 217.2 32.6% 20.5%;
     --input: 217.2 32.6% 20.5%;
     --ring: 224.3 76.3% 60%;
+    
+    /* Dialog Colors for Dark Mode */
+    --dialog-background: 222 47% 11%;
+    --dialog-foreground: 213 31% 91%;
+    --dialog-border: 217.2 32.6% 20.5%;
+    --dialog-title: 213 31% 95%;
+    --dialog-description: 215 20.2% 70%;
     
     /* Alert Colors for Dark Mode */
     --warning: 38 92% 50%;
@@ -165,6 +186,13 @@
     --hero-background-to: 222 47% 10%;
     --hero-text: 213 31% 95%;
     --hero-description: 215 20.2% 75%;
+    
+    /* Form Elements for Dark Mode */
+    --form-label: 213 31% 91%;
+    --form-input-bg: 222 47% 13%;
+    --form-input-border: 217.2 32.6% 20.5%;
+    --form-input-text: 213 31% 91%;
+    --form-placeholder: 215 20.2% 60%;
   }
 }
 
@@ -176,6 +204,7 @@
   html {
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     font-family: 'Inter', system-ui, sans-serif;
+    scroll-behavior: smooth;
   }
   
   body {
@@ -204,11 +233,6 @@
     @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
   
-  /* Smooth scrolling */
-  html {
-    scroll-behavior: smooth;
-  }
-  
   /* Custom scrollbar */
   ::-webkit-scrollbar {
     width: 10px;
@@ -226,10 +250,29 @@
   ::-webkit-scrollbar-thumb:hover {
     @apply bg-muted-foreground/70;
   }
+  
+  /* Form element styling */
+  label {
+    color: hsl(var(--form-label));
+    @apply text-sm font-medium mb-2 block;
+  }
+  
+  input, textarea, select {
+    background-color: hsl(var(--form-input-bg));
+    border-color: hsl(var(--form-input-border));
+    color: hsl(var(--form-input-text));
+    @apply rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background;
+  }
+  
+  ::placeholder {
+    color: hsl(var(--form-placeholder));
+    @apply opacity-70;
+  }
 }
 
-/* Additional component styles */
+/* Component styles - consolidated and improved */
 @layer components {
+  /* Button styles */
   .card-hover {
     @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
   }
@@ -248,15 +291,49 @@
     @apply text-xl font-bold;
   }
   
-  /* Dialog title styles */
+  /* Dialog styles - consolidated */
+  .dialog-content {
+    background-color: hsl(var(--dialog-background));
+    color: hsl(var(--dialog-foreground));
+    border-color: hsl(var(--dialog-border));
+    @apply rounded-lg border p-6;
+  }
+  
   .dialog-title {
-    color: hsl(var(--heading-2));
-    @apply text-xl font-bold;
+    color: hsl(var(--dialog-title));
+    @apply text-xl font-bold mb-2;
+  }
+  
+  .dialog-description {
+    color: hsl(var(--dialog-description));
+    @apply text-sm mb-4;
+  }
+  
+  /* Dark mode dialog enhancements */
+  .dark .dialog-content {
+    --tw-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    --tw-shadow-colored: 0 25px 50px -12px var(--tw-shadow-color);
+    box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  }
+  
+  /* Form field styling for dialogs */
+  .dialog-content label {
+    color: hsl(var(--dialog-foreground));
+    @apply text-sm font-medium mb-2 block;
+  }
+  
+  .dialog-content input,
+  .dialog-content textarea,
+  .dialog-content select {
+    background-color: hsl(var(--form-input-bg));
+    border-color: hsl(var(--dialog-border));
+    color: hsl(var(--dialog-foreground));
+    @apply w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background;
   }
   
   /* Hero section styles */
   .hero-section {
-    @apply bg-gradient-to-b rounded-xl border shadow-sm;
+    @apply rounded-xl border shadow-sm;
     background-color: hsl(var(--hero-background-from));
     background-image: linear-gradient(to bottom, 
       hsl(var(--hero-background-from)), 
@@ -276,14 +353,17 @@
   .stats-section {
     background-color: hsl(var(--stats-background));
     border-color: hsl(var(--stats-border));
+    @apply rounded-lg border p-4;
   }
   
   .stats-number {
     color: hsl(var(--stats-number));
+    @apply text-2xl font-bold;
   }
   
   .stats-text {
     color: hsl(var(--stats-text));
+    @apply text-sm;
   }
   
   /* Alert box styles */
@@ -291,17 +371,85 @@
     color: hsl(var(--warning-foreground));
     background-color: hsl(var(--warning-background));
     border-color: hsl(var(--warning-border));
+    @apply rounded-md border p-4 mb-4;
   }
   
   .alert-info {
     color: hsl(var(--info-foreground));
     background-color: hsl(var(--info-background));
     border-color: hsl(var(--info-border));
+    @apply rounded-md border p-4 mb-4;
   }
   
   .alert-success {
     color: hsl(var(--success-foreground));
     background-color: hsl(var(--success-background));
     border-color: hsl(var(--success-border));
+    @apply rounded-md border p-4 mb-4;
+  }
+  
+  /* Gradient title */
+  .gradient-title {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70 font-bold;
+  }
+  
+  /* Loading states */
+  .loading-spinner {
+    @apply animate-spin text-primary;
+  }
+  
+  .loading-overlay {
+    @apply absolute inset-0 bg-background/80 flex items-center justify-center z-50;
+  }
+  
+  /* Form states */
+  .form-disabled {
+    @apply opacity-60 pointer-events-none;
+  }
+  
+  /* Dialog animation improvements */
+  @keyframes dialogFadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .dialog-content {
+    animation: dialogFadeIn 0.2s ease-out;
+  }
+  
+  /* Button states */
+  .btn-loading {
+    @apply relative text-transparent transition-none hover:text-transparent;
+  }
+  
+  .btn-loading::after {
+    @apply absolute inset-0 flex items-center justify-center text-primary-foreground;
+    content: "Loading...";
+  }
+  
+  /* Form validation styles */
+  .form-error {
+    @apply text-destructive text-sm mt-1;
+  }
+  
+  .input-error {
+    @apply border-destructive focus:ring-destructive;
+  }
+  
+  /* Improved card styles */
+  .card {
+    @apply bg-card text-card-foreground rounded-lg border shadow-sm;
+  }
+  
+  .card-header {
+    @apply p-6 pb-2;
+  }
+  
+  .card-content {
+    @apply p-6 pt-0;
+  }
+  
+  .card-footer {
+    @apply p-6 pt-0;
   }
 }

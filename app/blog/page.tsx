@@ -163,12 +163,35 @@ export default function BlogPage() {
     }
   }
 
+  // Function to handle dialog open state changes with submitting check
+  const handleAddDialogChange = (open: boolean) => {
+    if (!submitting && !open) {
+      setShowAddForm(false);
+    } else if (open) {
+      setShowAddForm(true);
+    }
+  };
+
+  // Function to handle edit dialog open state changes with submitting check
+  const handleEditDialogChange = (open: boolean) => {
+    if (!submitting && !open) {
+      setEditingPost(null);
+    }
+  };
+
+  // Function to handle delete dialog open state changes with submitting check
+  const handleDeleteDialogChange = (open: boolean) => {
+    if (!submitting && !open) {
+      setPostToDelete(null);
+    }
+  };
+
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold gradient-text from-primary to-primary/70">Elon Musk Blog</h1>
+        <h1 className="gradient-title">Elon Musk Blog</h1>
         {isLoggedIn && (
-          <Button onClick={() => setShowAddForm(true)} className="gap-2 btn-primary">
+          <Button onClick={() => setShowAddForm(true)} className="gap-2">
             <PlusCircle className="h-4 w-4" />
             Add Post
           </Button>
@@ -177,10 +200,10 @@ export default function BlogPage() {
 
       {loading ? (
         <div className="flex justify-center items-center h-64">
-          <RefreshCw className="h-8 w-8 animate-spin text-primary" />
+          <RefreshCw className="h-8 w-8 loading-spinner" />
         </div>
       ) : posts.length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground bg-muted/30 rounded-lg p-8">
+        <div className="text-center py-12 text-muted-foreground bg-muted/30 rounded-lg p-8 border border-border">
           <p className="text-lg">No blog posts yet.</p>
           {isLoggedIn && (
             <p className="mt-2">
@@ -196,43 +219,43 @@ export default function BlogPage() {
         </div>
       )}
 
-      {/* Add Post Dialog */}
-      <Dialog open={showAddForm} onOpenChange={(open) => !submitting && setShowAddForm(open)}>
-        <DialogContent className="sm:max-w-[600px]">
+      {/* Add Post Dialog - Fixed to prevent closing during submission */}
+      <Dialog open={showAddForm} onOpenChange={handleAddDialogChange}>
+        <DialogContent className="dialog-content">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold">Add New Blog Post</DialogTitle>
+            <DialogTitle className="dialog-title">Add New Blog Post</DialogTitle>
           </DialogHeader>
           <BlogForm 
             onSubmit={handleAddPost} 
-            onCancel={() => setShowAddForm(false)} 
+            onCancel={() => !submitting && setShowAddForm(false)} 
             isSubmitting={submitting} 
           />
         </DialogContent>
       </Dialog>
 
-      {/* Edit Post Dialog */}
-      <Dialog open={!!editingPost} onOpenChange={(open) => !submitting && !open && setEditingPost(null)}>
-        <DialogContent className="sm:max-w-[600px]">
+      {/* Edit Post Dialog - Fixed to prevent closing during submission */}
+      <Dialog open={!!editingPost} onOpenChange={handleEditDialogChange}>
+        <DialogContent className="dialog-content">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold">Edit Blog Post</DialogTitle>
+            <DialogTitle className="dialog-title">Edit Blog Post</DialogTitle>
           </DialogHeader>
           {editingPost && (
             <BlogForm 
               initialData={editingPost} 
               onSubmit={handleUpdatePost} 
-              onCancel={() => setEditingPost(null)} 
+              onCancel={() => !submitting && setEditingPost(null)} 
               isSubmitting={submitting}
             />
           )}
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={!!postToDelete} onOpenChange={(open) => !submitting && !open && setPostToDelete(null)}>
-        <AlertDialogContent>
+      {/* Delete Confirmation Dialog - Fixed to prevent closing during submission */}
+      <AlertDialog open={!!postToDelete} onOpenChange={handleDeleteDialogChange}>
+        <AlertDialogContent className="dialog-content">
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="dialog-title">Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription className="dialog-description">
               This will permanently delete this blog post. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>

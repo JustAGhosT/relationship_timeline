@@ -24,10 +24,10 @@ export default function BlogPostCard({ post, onEdit, onDelete }: BlogPostProps) 
   })
 
   return (
-    <Card className="h-full flex flex-col overflow-hidden card-hover">
+    <Card className="h-full flex flex-col overflow-hidden card-hover border border-border">
       <div className="relative w-full h-48 overflow-hidden bg-muted">
         <Image 
-          src={post.imageUrl || "/placeholder.svg"} 
+          src={post.imageUrl || "/placeholder.svg?height=300&width=600"} 
           alt={post.title} 
           fill 
           className="object-cover transition-transform duration-300 hover:scale-105"
@@ -38,7 +38,6 @@ export default function BlogPostCard({ post, onEdit, onDelete }: BlogPostProps) 
       </div>
       
       <CardHeader className="pb-2">
-        {/* Using the blog-post-title class to ensure proper color in dark mode */}
         <h3 className="blog-post-title">{post.title}</h3>
         <div className="flex items-center text-sm text-muted-foreground gap-4">
           <div className="flex items-center gap-1">
