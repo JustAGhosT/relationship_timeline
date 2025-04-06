@@ -1,48 +1,117 @@
 // .devcontainer/devcontainer.json
 {
-    "name": "Next.js Blog Development",
-    "image": "mcr.microsoft.com/devcontainers/javascript-node:18",
-    "forwardPorts": [3000],
-    "postCreateCommand": "npm install",
-    "customizations": {
-      "vscode": {
-        "extensions": [
-          "dbaeumer.vscode-eslint",
-          "esbenp.prettier-vscode",
-          "bradlc.vscode-tailwindcss",
-          "ms-vscode.vscode-typescript-next",
-          "formulahendry.auto-rename-tag",
-          "streetsidesoftware.code-spell-checker",
-          "github.copilot",
-          "github.copilot-chat"
+  "name": "Next.js 15 Development Environment",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
+  "forwardPorts": [3000],
+  "postCreateCommand": "npm install",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        // Essential Extensions
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss",
+        "ms-vscode.vscode-typescript-next",
+        "formulahendry.auto-rename-tag",
+        "streetsidesoftware.code-spell-checker",
+        "github.copilot",
+        "github.copilot-chat",
+        
+        // React & Next.js
+        "dsznajder.es7-react-js-snippets",
+        "csstools.postcss",
+        "ms-vscode.vscode-typescript-next",
+        "wix.vscode-import-cost",
+        
+        // Tailwind CSS
+        "bradlc.vscode-tailwindcss",
+        "heybourn.headwind",
+        
+        // Debugging & Error Handling
+        "usernamehw.errorlens",
+        "wallabyjs.console-ninja",
+        
+        // Git
+        "eamodio.gitlens",
+        "mhutchie.git-graph",
+        
+        // Productivity
+        "yoavbls.pretty-ts-errors",
+        "christian-kohler.path-intellisense",
+        "naumovs.color-highlight",
+        "aaron-bond.better-comments",
+        
+        // Supabase
+        "supabase.supabase-vscode",
+        
+        // Markdown
+        "yzhang.markdown-all-in-one",
+        "bierner.markdown-preview-github-styles"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit",
+          "source.organizeImports": "explicit"
+        },
+        "editor.linkedEditing": true,
+        "editor.bracketPairColorization.enabled": true,
+        "editor.guides.bracketPairs": "active",
+        "typescript.tsdk": "node_modules/typescript/lib",
+        "typescript.enablePromptUseWorkspaceTsdk": true,
+        "[typescript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[typescriptreact]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[javascript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[javascriptreact]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[json]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[jsonc]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "tailwindCSS.includeLanguages": {
+          "typescript": "javascript",
+          "typescriptreact": "javascript"
+        },
+        "tailwindCSS.experimental.classRegex": [
+          ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+          ["cn\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"]
         ],
-        "settings": {
-          "editor.formatOnSave": true,
-          "editor.defaultFormatter": "esbenp.prettier-vscode",
-          "editor.codeActionsOnSave": {
-            "source.fixAll.eslint": "explicit"
-          },
-          "typescript.tsdk": "node_modules/typescript/lib",
-          "typescript.enablePromptUseWorkspaceTsdk": true,
-          "[typescript]": {
-            "editor.defaultFormatter": "esbenp.prettier-vscode"
-          },
-          "[typescriptreact]": {
-            "editor.defaultFormatter": "esbenp.prettier-vscode"
-          },
-          "tailwindCSS.includeLanguages": {
-            "typescript": "javascript",
-            "typescriptreact": "javascript"
-          },
-          "tailwindCSS.experimental.classRegex": [
-            ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"]
-          ]
+        "emmet.includeLanguages": {
+          "javascript": "javascriptreact",
+          "typescript": "typescriptreact"
+        },
+        "javascript.updateImportsOnFileMove.enabled": "always",
+        "typescript.updateImportsOnFileMove.enabled": "always",
+        "git.enableSmartCommit": true,
+        "git.confirmSync": false,
+        "editor.wordWrap": "on",
+        "workbench.colorCustomizations": {
+          "editorError.foreground": "#ff5370",
+          "editorWarning.foreground": "#ffcb6b",
+          "editorInfo.foreground": "#82aaff"
         }
       }
-    },
-    "features": {
-      "ghcr.io/devcontainers/features/git:1": {},
-      "ghcr.io/devcontainers/features/github-cli:1": {}
-    },
-    "remoteUser": "node"
-  }
+    }
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers-contrib/features/npm-package:1": {
+      "package": "typescript",
+      "version": "latest"
+    }
+  },
+  "remoteUser": "node",
+  "updateContentCommand": "npm install -g npm@latest next@latest typescript@latest",
+  "waitFor": "postCreateCommand"
+}
