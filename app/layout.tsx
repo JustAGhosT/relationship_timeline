@@ -2,12 +2,14 @@ import type React from "react"
 import "@/app/globals.css"
 import { Inter } from "next/font/google"
 import { ThemeProvider } from "@/components/theme-provider"
+import Header from "@/components/header"
+import { AuthProvider } from "@/lib/auth-context"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
-  title: "Gantt Chart Visualizer",
-  description: "A simple tool to create and visualize Gantt charts",
+  title: "Elon Musk Blog & Timeline",
+  description: "A blog and interactive timeline about Elon Musk's life and career",
     generator: 'v0.dev'
 }
 
@@ -20,7 +22,10 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          {children}
+          <AuthProvider>
+            <Header />
+            <main>{children}</main>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

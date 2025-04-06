@@ -1,472 +1,273 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Timeline from "@/components/timeline"
-import TimelineDetail from "@/components/timeline-detail"
-import RelationshipForm from "@/components/relationship-form"
-import ImportExportPanel from "@/components/import-export-panel"
-import AnalysisSettings from "@/components/analysis-settings"
+import Link from "next/link"
+import Image from "next/image"
+import { useAuth } from "@/lib/auth-context"
 import { Button } from "@/components/ui/button"
-import { PlusCircle, Download, BarChart2 } from "lucide-react"
-import type { AnalysisOptions, Child, Relationship } from "@/lib/types"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { ArrowRight, Calendar, Users, BookOpen, Github, AlertTriangle, Info, RefreshCw } from "lucide-react"
+import BlogPostCard from "@/components/blog-post"
+import type { BlogPost } from "@/lib/blog-types"
+import { getBlogPosts, seedDatabase } from "@/lib/actions"
+import { useToast } from "@/hooks/use-toast"
 
-export default function Home() {
-  // Add error boundary handling for ResizeObserver errors
-  // Add this near the top of the file, after the imports
+export default function HomePage() {
+  const { isLoggedIn } = useAuth()
+  const { toast } = useToast()
+  const [posts, setPosts] = useState<BlogPost[]>([])
+  const [loading, setLoading] = useState(true)
+
+  // Load posts from Supabase
   useEffect(() => {
-    // Handle ResizeObserver errors globally
-    const handleError = (event: ErrorEvent) => {
-      if (event.message.includes("ResizeObserver") || event.error?.message?.includes("ResizeObserver")) {
-        // Prevent the error from showing in console
-        event.preventDefault()
-        event.stopPropagation()
-      }
-    }
-
-    window.addEventListener("error", handleError as any)
-    window.addEventListener("unhandledrejection", (event) => {
-      if (event.reason?.message?.includes("ResizeObserver")) {
-        event.preventDefault()
-      }
-    })
-
-    return () => {
-      window.removeEventListener("error", handleError as any)
-      window.removeEventListener("unhandledrejection", (event) => {
-        if (event.reason?.message?.includes("ResizeObserver")) {
-          event.preventDefault()
-        }
-      })
-    }
-  }, [])
-  const [selectedRelationship, setSelectedRelationship] = useState<Relationship | null>(null)
-  const [showForm, setShowForm] = useState(false)
-  const [showImportExport, setShowImportExport] = useState(false)
-  const [showAnalysisSettings, setShowAnalysisSettings] = useState(false)
-  const [editingRelationship, setEditingRelationship] = useState<Relationship | null>(null)
-
-  // Add cross-relationship children detection to the page component
-  // Find children conceived in one relationship but associated with another
-
-  // Update the analysisOptions state to include the new option
-  const [analysisOptions, setAnalysisOptions] = useState<AnalysisOptions>({
-    enabled: false,
-    showUnfaithfulPeriods: true,
-    showOutOfRangeConceptions: true,
-    showCrossRelationshipChildren: true,
-  })
-
-  const [relationships, setRelationships] = useState<Relationship[]>([
-    {
-      id: "1",
-      name: "Relationship A",
-      startDate: new Date("2000-01-01"),
-      endDate: new Date("2006-12-31"),
-      color: "#4f46e5", // indigo-600
-      details: "This was a significant period with many shared experiences and growth.",
-      moreInfoUrl: "https://example.com/relationship-a",
-      highlights: [
-        {
-          date: new Date("2001-06-15"),
-          title: "First milestone",
-          description: "An important moment in the relationship",
-        },
-        { date: new Date("2003-08-20"), title: "Second milestone", description: "Another significant event" },
-      ],
-      children: [
-        {
-          id: "c1",
-          name: "Child 1",
-          conceptionDate: new Date("2001-04-01"), // Estimated conception date (9 months before birth)
-          birthDate: new Date("2002-01-01"),
-          details: "First child",
-        },
-        {
-          id: "c2",
-          name: "Twin A",
-          conceptionDate: new Date("2002-10-15"), // Estimated conception date
-          birthDate: new Date("2003-07-15"),
-          details: "First twin",
-        },
-        {
-          id: "c3",
-          name: "Twin B",
-          conceptionDate: new Date("2002-10-15"), // Same conception date for twins
-          birthDate: new Date("2003-07-15"),
-          details: "Second twin",
-        },
-        {
-          id: "c4",
-          name: "Triplet A",
-          conceptionDate: new Date("2004-07-15"), // Estimated conception date
-          birthDate: new Date("2005-04-15"),
-          details: "First triplet",
-        },
-        {
-          id: "c5",
-          name: "Triplet B",
-          conceptionDate: new Date("2004-07-15"), // Same conception date for triplets
-          birthDate: new Date("2005-04-15"),
-          details: "Second triplet",
-        },
-        {
-          id: "c6",
-          name: "Triplet C",
-          conceptionDate: new Date("2004-07-15"), // Same conception date for triplets
-          birthDate: new Date("2005-04-15"),
-          details: "Third triplet",
-        },
-      ],
-    },
-    {
-      id: "2",
-      name: "Relationship B",
-      startDate: new Date("2006-03-01"), // Note: Overlaps with Relationship A
-      endDate: new Date("2009-11-30"),
-      color: "#0891b2", // cyan-600
-      details: "A period of discovery and new experiences together.",
-      moreInfoUrl: "",
-      highlights: [{ date: new Date("2007-02-14"), title: "Special occasion", description: "A memorable celebration" }],
-      children: [
-        {
-          id: "c9",
-          name: "Out of Range Child",
-          conceptionDate: new Date("2005-10-15"), // Conceived before relationship started
-          birthDate: new Date("2006-07-15"),
-          details: "Conceived before relationship began",
-        },
-      ],
-    },
-    {
-      id: "3",
-      name: "Relationship C",
-      startDate: new Date("2010-01-01"),
-      endDate: new Date("2012-06-30"),
-      color: "#7c3aed", // violet-600
-      details: "A shorter but meaningful connection with important lessons.",
-      moreInfoUrl: "",
-      highlights: [],
-      children: [],
-    },
-    {
-      id: "4",
-      name: "Relationship D",
-      startDate: new Date("2012-01-01"), // Note: Overlaps with Relationship C
-      endDate: new Date("2015-12-31"),
-      color: "#ea580c", // orange-600
-      details: "A long-term relationship with many shared experiences.",
-      moreInfoUrl: "https://example.com/relationship-d",
-      highlights: [
-        { date: new Date("2013-07-10"), title: "Major event", description: "A transformative experience" },
-        { date: new Date("2014-03-22"), title: "Important decision", description: "A turning point" },
-      ],
-      children: [
-        {
-          id: "c7",
-          name: "Child 2",
-          conceptionDate: new Date("2013-08-20"),
-          birthDate: new Date("2014-05-20"),
-          details: "Born during this relationship",
-        },
-        {
-          id: "c8",
-          name: "Child 3",
-          conceptionDate: new Date("2016-01-10"), // Conceived after relationship ended
-          birthDate: new Date("2016-08-10"),
-          details: "Conceived after relationship ended",
-        },
-      ],
-    },
-    {
-      id: "5",
-      name: "Relationship E",
-      startDate: new Date("2016-02-01"),
-      endDate: new Date("2018-09-30"),
-      color: "#16a34a", // green-600
-      details: "A relationship that brought new perspectives and growth.",
-      moreInfoUrl: "",
-      highlights: [{ date: new Date("2017-12-25"), title: "Significant moment", description: "A special memory" }],
-      children: [],
-    },
-    {
-      id: "6",
-      name: "Relationship F",
-      startDate: new Date("2018-01-01"), // Note: Overlaps with Relationship E
-      endDate: new Date("2020-03-29"),
-      color: "#dc2626", // red-600
-      details: "The most recent relationship with ongoing developments.",
-      moreInfoUrl: "",
-      highlights: [{ date: new Date("2019-08-15"), title: "Recent milestone", description: "A notable recent event" }],
-      children: [],
-    },
-  ])
-
-  // Now define the function after relationships is initialized
-  const findCrossRelationshipChildren = () => {
-    const crossRelationshipChildren: {
-      childId: string
-      relationshipId: string
-      conceptionRelationshipId: string
-      relationshipName: string
-    }[] = []
-
-    // For each relationship
-    relationships.forEach((birthRelationship) => {
-      // For each child in this relationship
-      birthRelationship.children.forEach((child) => {
-        // Check all other relationships to see if the child was conceived during them
-        relationships.forEach((conceptionRelationship) => {
-          if (
-            conceptionRelationship.id !== birthRelationship.id &&
-            child.conceptionDate >= conceptionRelationship.startDate &&
-            child.conceptionDate <= conceptionRelationship.endDate
-          ) {
-            crossRelationshipChildren.push({
-              childId: child.id,
-              relationshipId: birthRelationship.id,
-              conceptionRelationshipId: conceptionRelationship.id,
-              relationshipName: conceptionRelationship.name,
-            })
-          }
+    const loadPosts = async () => {
+      setLoading(true)
+      try {
+        const data = await getBlogPosts()
+        setPosts(data)
+      } catch (error) {
+        console.error("Error loading blog posts:", error)
+        toast({
+          title: "Error",
+          description: "Failed to load blog posts",
+          variant: "destructive",
         })
-      })
-    })
-
-    return crossRelationshipChildren
-  }
-
-  // Calculate cross-relationship children
-  const crossRelationshipChildren =
-    analysisOptions.enabled && analysisOptions.showCrossRelationshipChildren ? findCrossRelationshipChildren() : []
-
-  // Prepare cross-relationship data for the TimelineDetail component
-  const getCrossRelationshipDataForRelationship = (relationshipId: string) => {
-    return crossRelationshipChildren
-      .filter((item) => item.relationshipId === relationshipId || item.conceptionRelationshipId === relationshipId)
-      .map((item) => ({
-        childId: item.childId,
-        relationshipName: item.relationshipName,
-      }))
-  }
-
-  const handleAddRelationship = (relationship: Relationship) => {
-    if (editingRelationship) {
-      // Update existing relationship
-      setRelationships(relationships.map((r) => (r.id === editingRelationship.id ? relationship : r)))
-      setEditingRelationship(null)
-    } else {
-      // Add new relationship
-      const newRelationship = {
-        ...relationship,
-        id: (relationships.length + 1).toString(),
-      }
-      setRelationships([...relationships, newRelationship])
-    }
-    setShowForm(false)
-  }
-
-  const handleEditRelationship = (relationship: Relationship) => {
-    setEditingRelationship(relationship)
-    setShowForm(true)
-  }
-
-  const handleDeleteRelationship = (relationshipId: string) => {
-    setRelationships(relationships.filter((r) => r.id !== relationshipId))
-    if (selectedRelationship?.id === relationshipId) {
-      setSelectedRelationship(null)
-    }
-  }
-
-  const handleAddChild = (relationshipId: string, child: Child) => {
-    setRelationships(
-      relationships.map((r) => {
-        if (r.id === relationshipId) {
-          return {
-            ...r,
-            children: [...r.children, { ...child, id: `c${Date.now()}` }],
-          }
-        }
-        return r
-      }),
-    )
-  }
-
-  const handleDeleteChild = (relationshipId: string, childId: string) => {
-    setRelationships(
-      relationships.map((r) => {
-        if (r.id === relationshipId) {
-          return {
-            ...r,
-            children: r.children.filter((c) => c.id !== childId),
-          }
-        }
-        return r
-      }),
-    )
-  }
-
-  const handleImportData = (importedData: Relationship[]) => {
-    setRelationships(importedData)
-    setShowImportExport(false)
-  }
-
-  const handleUpdateAnalysisOptions = (options: AnalysisOptions) => {
-    setAnalysisOptions(options)
-    setShowAnalysisSettings(false)
-  }
-
-  // Find overlapping relationships for analysis
-  const findOverlappingRelationships = () => {
-    const overlaps: { id1: string; id2: string; startDate: Date; endDate: Date }[] = []
-
-    for (let i = 0; i < relationships.length; i++) {
-      for (let j = i + 1; j < relationships.length; j++) {
-        const rel1 = relationships[i]
-        const rel2 = relationships[j]
-
-        // Check if relationships overlap
-        if (rel1.startDate <= rel2.endDate && rel2.startDate <= rel1.endDate) {
-          // Calculate overlap period
-          const overlapStart = new Date(Math.max(rel1.startDate.getTime(), rel2.startDate.getTime()))
-          const overlapEnd = new Date(Math.min(rel1.endDate.getTime(), rel2.endDate.getTime()))
-
-          overlaps.push({
-            id1: rel1.id,
-            id2: rel2.id,
-            startDate: overlapStart,
-            endDate: overlapEnd,
-          })
-        }
+      } finally {
+        setLoading(false)
       }
     }
 
-    return overlaps
-  }
+    loadPosts()
+  }, [toast])
 
-  // Find children conceived outside of relationship range
-  const findOutOfRangeConceptions = () => {
-    const outOfRangeConceptions: { relationshipId: string; childId: string }[] = []
+  const handleSeedDatabase = async () => {
+    try {
+      setLoading(true)
+      await seedDatabase()
 
-    relationships.forEach((relationship) => {
-      relationship.children.forEach((child) => {
-        if (child.conceptionDate < relationship.startDate || child.conceptionDate > relationship.endDate) {
-          outOfRangeConceptions.push({
-            relationshipId: relationship.id,
-            childId: child.id,
-          })
-        }
+      // Reload blog posts
+      const data = await getBlogPosts()
+      setPosts(data)
+
+      toast({
+        title: "Success",
+        description: "Database seeded successfully",
       })
-    })
-
-    return outOfRangeConceptions
+    } catch (error) {
+      console.error("Error seeding database:", error)
+      toast({
+        title: "Error",
+        description: "Failed to seed database",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
+    }
   }
-
-  const overlappingRelationships =
-    analysisOptions.enabled && analysisOptions.showUnfaithfulPeriods ? findOverlappingRelationships() : []
-
-  const outOfRangeConceptions =
-    analysisOptions.enabled && analysisOptions.showOutOfRangeConceptions ? findOutOfRangeConceptions() : []
 
   return (
-    <main className="container mx-auto py-8 px-4">
-      <h1 className="text-3xl font-bold mb-2 text-center">Relationship Timeline</h1>
-      <p className="text-center text-muted-foreground mb-8">An interactive visualization of relationship periods</p>
-
-      <div className="flex justify-end mb-4 gap-2">
-        <Button
-          variant={analysisOptions.enabled ? "default" : "outline"}
-          onClick={() => setShowAnalysisSettings(true)}
-          className="gap-2"
-        >
-          <BarChart2 className="h-4 w-4" />
-          Analysis
-        </Button>
-        <Button variant="outline" onClick={() => setShowImportExport(true)} className="gap-2">
-          <Download className="h-4 w-4" />
-          Import/Export
-        </Button>
-        <Button
-          onClick={() => {
-            setEditingRelationship(null)
-            setShowForm(true)
-          }}
-          className="gap-2"
-        >
-          <PlusCircle className="h-4 w-4" />
-          Add Relationship
-        </Button>
-      </div>
-
-      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-        <Timeline
-          relationships={relationships}
-          onSelectRelationship={setSelectedRelationship}
-          selectedRelationship={selectedRelationship}
-          analysisOptions={analysisOptions}
-          overlappingRelationships={overlappingRelationships}
-          outOfRangeConceptions={outOfRangeConceptions}
-          crossRelationshipChildren={crossRelationshipChildren}
-        />
-      </div>
-
-      {selectedRelationship && (
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <TimelineDetail
-            relationship={selectedRelationship}
-            onEdit={handleEditRelationship}
-            onDelete={handleDeleteRelationship}
-            onAddChild={handleAddChild}
-            onDeleteChild={handleDeleteChild}
-            outOfRangeConceptions={outOfRangeConceptions
-              .filter((item) => item.relationshipId === selectedRelationship.id)
-              .map((item) => item.childId)}
-            crossRelationshipChildren={getCrossRelationshipDataForRelationship(selectedRelationship.id)}
-          />
-        </div>
-      )}
-
-      <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>{editingRelationship ? "Edit Relationship" : "Add New Relationship"}</DialogTitle>
-          </DialogHeader>
-          <RelationshipForm
-            onSubmit={handleAddRelationship}
-            initialData={editingRelationship}
-            onCancel={() => setShowForm(false)}
-          />
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={showImportExport} onOpenChange={setShowImportExport}>
-        <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-hidden">
-          <DialogHeader>
-            <DialogTitle>Import/Export Data</DialogTitle>
-          </DialogHeader>
-          <div className="overflow-y-auto pr-1" style={{ maxHeight: "calc(80vh - 120px)" }}>
-            <ImportExportPanel
-              relationships={relationships}
-              onImport={handleImportData}
-              onCancel={() => setShowImportExport(false)}
-            />
+    <div className="container mx-auto py-8 px-4">
+      {/* Hero Section */}
+      <section className="py-12 md:py-24 lg:py-32 bg-gradient-to-b from-white to-gray-50 rounded-xl border shadow-sm mb-16">
+        <div className="container px-4 md:px-6">
+          <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
+            <div className="flex flex-col justify-center space-y-4">
+              <div className="space-y-2">
+                <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
+                  The Complete Elon Musk Timeline
+                </h1>
+                <p className="max-w-[600px] text-gray-500 md:text-xl">
+                  Explore the most comprehensive interactive timeline of Elon Musk's life, career, and
+                  relationships—including confirmed events, rumored connections, and speculative future developments
+                  through April 2025.
+                </p>
+                <div className="flex items-center gap-2 mt-4 text-amber-600 bg-amber-50 p-3 rounded-lg border border-amber-200">
+                  <AlertTriangle className="h-5 w-5 flex-shrink-0" />
+                  <p className="text-sm">
+                    This timeline includes both verified facts and unconfirmed reports. Future events and some
+                    relationships are speculative and included for analytical purposes.
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-col gap-2 min-[400px]:flex-row mt-4">
+                <Link href="/timeline" passHref>
+                  <Button className="gap-1">
+                    Explore Timeline <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+                <Link href="/relationship" passHref>
+                  <Button variant="outline" className="gap-1">
+                    View Relationships <Users className="h-4 w-4" />
+                  </Button>
+                </Link>
+                {isLoggedIn && (
+                  <Button variant="outline" onClick={handleSeedDatabase} disabled={loading} className="gap-1">
+                    <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+                    Seed Database
+                  </Button>
+                )}
+              </div>
+            </div>
+            <div className="mx-auto aspect-video overflow-hidden rounded-xl object-cover sm:w-full lg:order-last">
+              <Image
+                src="/placeholder.svg?height=400&width=600"
+                alt="Elon Musk Timeline"
+                width={600}
+                height={400}
+                className="object-cover w-full h-full"
+              />
+            </div>
           </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      </section>
 
-      <Dialog open={showAnalysisSettings} onOpenChange={setShowAnalysisSettings}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Analysis Settings</DialogTitle>
-          </DialogHeader>
-          <AnalysisSettings
-            options={analysisOptions}
-            onUpdate={handleUpdateAnalysisOptions}
-            onCancel={() => setShowAnalysisSettings(false)}
-          />
-        </DialogContent>
-      </Dialog>
-    </main>
+      {/* Features Section */}
+      <section className="mb-16">
+        <h2 className="text-2xl font-bold text-center mb-8">Explore the Application</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="h-full">
+            <CardHeader>
+              <Calendar className="h-8 w-8 text-primary mb-2" />
+              <CardTitle>Timeline View</CardTitle>
+              <CardDescription>Chronological view of Elon Musk's personal and professional life</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-500">
+                Explore key events in Elon Musk's life and career through an interactive timeline. Toggle between
+                personal and career events.
+              </p>
+            </CardContent>
+            <CardFooter>
+              <Link href="/timeline" passHref>
+                <Button variant="outline" className="w-full">
+                  View Timeline
+                </Button>
+              </Link>
+            </CardFooter>
+          </Card>
+
+          <Card className="h-full">
+            <CardHeader>
+              <Users className="h-8 w-8 text-primary mb-2" />
+              <CardTitle>Relationship Analysis</CardTitle>
+              <CardDescription>Interactive visualization of Elon Musk's relationships</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-500">
+                Visualize Elon Musk's relationships and children with detailed analysis of overlaps and timeline
+                inconsistencies.
+              </p>
+            </CardContent>
+            <CardFooter>
+              <Link href="/relationship" passHref>
+                <Button variant="outline" className="w-full">
+                  View Relationships
+                </Button>
+              </Link>
+            </CardFooter>
+          </Card>
+
+          <Card className="h-full">
+            <CardHeader>
+              <BookOpen className="h-8 w-8 text-primary mb-2" />
+              <CardTitle>Blog Posts</CardTitle>
+              <CardDescription>Latest news and articles about Elon Musk</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-500">
+                Read and manage blog posts about Elon Musk's companies, achievements, and latest news.
+              </p>
+            </CardContent>
+            <CardFooter>
+              <Link href="/blog" passHref>
+                <Button variant="outline" className="w-full">
+                  View Blog
+                </Button>
+              </Link>
+            </CardFooter>
+          </Card>
+        </div>
+      </section>
+
+      {/* Timeline Stats Section */}
+      <section className="mb-16 bg-gray-50 p-8 rounded-xl border">
+        <h2 className="text-2xl font-bold text-center mb-8">Timeline Statistics</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="text-center">
+            <div className="text-4xl font-bold text-primary mb-2">7+</div>
+            <div className="text-sm text-gray-500">Major Relationships</div>
+          </div>
+          <div className="text-center">
+            <div className="text-4xl font-bold text-primary mb-2">12+</div>
+            <div className="text-sm text-gray-500">Children</div>
+          </div>
+          <div className="text-center">
+            <div className="text-4xl font-bold text-primary mb-2">30+</div>
+            <div className="text-sm text-gray-500">Career Milestones</div>
+          </div>
+          <div className="text-center">
+            <div className="text-4xl font-bold text-primary mb-2">50+</div>
+            <div className="text-sm text-gray-500">Key Life Events</div>
+          </div>
+        </div>
+        <div className="flex justify-center mt-8">
+          <div className="flex items-center gap-2 text-amber-600 bg-amber-50 p-3 rounded-lg border border-amber-200 max-w-2xl">
+            <Info className="h-5 w-5 flex-shrink-0" />
+            <p className="text-sm">
+              Our timeline includes both verified public information and speculative data based on reports and analysis.
+              Some future events and relationships are included for analytical purposes.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Recent Blog Posts Section */}
+      <section className="mb-16">
+        <div className="flex justify-between items-center mb-8">
+          <h2 className="text-2xl font-bold">Recent Blog Posts</h2>
+          <Link href="/blog" passHref>
+            <Button variant="outline" size="sm">
+              View All Posts
+            </Button>
+          </Link>
+        </div>
+
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <RefreshCw className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {posts.slice(0, 3).map((post) => (
+              <BlogPostCard key={post.id} post={post} onEdit={() => {}} onDelete={() => {}} />
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* About Section */}
+      <section className="bg-gray-50 p-8 rounded-xl border mb-16">
+        <div className="flex flex-col md:flex-row gap-8 items-center">
+          <div className="md:w-1/2">
+            <h2 className="text-2xl font-bold mb-4">About This Project</h2>
+            <p className="text-gray-600 mb-4">
+              This interactive application provides a comprehensive view of Elon Musk's life, career, and relationships.
+              It features timeline visualizations, relationship analysis, and a blog with the latest news.
+            </p>
+            <p className="text-gray-600">
+              The application is built with Next.js and uses Supabase for data storage, providing a responsive and
+              interactive user experience with persistent data.
+            </p>
+          </div>
+          <div className="md:w-1/2 flex justify-center">
+            <div className="flex flex-col items-center">
+              <Github className="h-16 w-16 text-gray-700 mb-4" />
+              <Button variant="outline">View Source Code</Button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
   )
 }
 

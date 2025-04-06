@@ -2,6 +2,7 @@ export interface Highlight {
   date: Date
   title: string
   description: string
+  confirmed?: boolean
 }
 
 export interface Child {
@@ -10,6 +11,7 @@ export interface Child {
   conceptionDate: Date
   birthDate: Date
   details: string
+  confirmed?: boolean
 }
 
 export interface Relationship {
@@ -22,6 +24,7 @@ export interface Relationship {
   moreInfoUrl: string
   highlights: Highlight[]
   children: Child[]
+  confirmed?: boolean
 }
 
 export interface AnalysisOptions {
@@ -29,6 +32,7 @@ export interface AnalysisOptions {
   showUnfaithfulPeriods: boolean
   showOutOfRangeConceptions: boolean
   showCrossRelationshipChildren?: boolean
+  showUnconfirmedEvents?: boolean
 }
 
 export interface Task {

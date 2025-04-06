@@ -19,6 +19,7 @@ export default function AnalysisSettings({ options, onUpdate, onCancel }: Analys
   const [localOptions, setLocalOptions] = useState<AnalysisOptions>({
     ...options,
     showCrossRelationshipChildren: options.showCrossRelationshipChildren ?? true,
+    showUnconfirmedEvents: options.showUnconfirmedEvents ?? true,
   })
 
   const handleToggleEnabled = (checked: boolean) => {
@@ -46,6 +47,13 @@ export default function AnalysisSettings({ options, onUpdate, onCancel }: Analys
     setLocalOptions((prev) => ({
       ...prev,
       showCrossRelationshipChildren: checked,
+    }))
+  }
+
+  const handleToggleUnconfirmed = (checked: boolean) => {
+    setLocalOptions((prev) => ({
+      ...prev,
+      showUnconfirmedEvents: checked,
     }))
   }
 
@@ -113,6 +121,24 @@ export default function AnalysisSettings({ options, onUpdate, onCancel }: Analys
             <p className="text-sm text-muted-foreground">
               Identify children conceived in one relationship but associated with another. This could indicate complex
               relationship transitions, co-parenting arrangements, or data entry errors.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-start space-x-2">
+          <Checkbox
+            id="show-unconfirmed"
+            checked={localOptions.showUnconfirmedEvents}
+            onCheckedChange={handleToggleUnconfirmed}
+            disabled={!localOptions.enabled}
+          />
+          <div className="grid gap-1.5">
+            <Label htmlFor="show-unconfirmed" className={!localOptions.enabled ? "text-muted-foreground" : ""}>
+              Highlight Unconfirmed Events
+            </Label>
+            <p className="text-sm text-muted-foreground">
+              Visually distinguish between confirmed and unconfirmed relationships, children, and events. This helps
+              separate verified facts from rumors and speculative information.
             </p>
           </div>
         </div>

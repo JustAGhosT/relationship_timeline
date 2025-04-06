@@ -3,12 +3,23 @@
 import { useEffect, useRef, useState } from "react"
 import type { AnalysisOptions, Relationship } from "@/lib/types"
 import { cn } from "@/lib/utils"
-import { ChevronLeft, ChevronRight, ExternalLink, ZoomIn, ZoomOut, AlertTriangle } from "lucide-react"
+import {
+  ChevronLeft,
+  ChevronRight,
+  ExternalLink,
+  ZoomIn,
+  ZoomOut,
+  AlertTriangle,
+  CheckCircle,
+  HelpCircle,
+  Filter,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
 
 // Add a debounce utility to prevent rapid resize events
-// Add this near the top of the file, after the imports
 const debounce = (fn: Function, ms = 300) => {
   let timeoutId: ReturnType<typeof setTimeout>
   return function (this: any, ...args: any[]) {
@@ -17,45 +28,88 @@ const debounce = (fn: Function, ms = 300) => {
   }
 }
 
-// Add a Legend component at the top of the file, after the imports
+// Improved TimelineLegend component with better colors and contrast
 const TimelineLegend = () => {
   return (
-    <div className="bg-white p-4 rounded-md border mb-4">
-      <h3 className="text-sm font-medium mb-3">Legend</h3>
-      <div className="grid grid-cols-2 gap-4">
-        <div className="flex items-center gap-2">
-          <div className="w-12 h-6 bg-primary rounded-md"></div>
-          <span className="text-sm">Relationship Period</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-5 h-5 border-2 border-primary rounded-full bg-white"></div>
-          <span className="text-sm">Child Conception</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-5 h-5 bg-primary rounded-full"></div>
-          <span className="text-sm">Child Birth</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-12 h-6 bg-red-500/30 border border-red-500 rounded-md"></div>
-          <span className="text-sm">Overlapping Relationships</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-5 h-5 border-2 border-primary rounded-full bg-white ring-2 ring-red-500 ring-offset-1"></div>
-          <span className="text-sm">Out-of-Range Conception</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 bg-white rounded-full border border-gray-300"></div>
-          <span className="text-sm">Relationship Highlight</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-5 h-5 border-2 border-yellow-500 rounded-full bg-white ring-2 ring-blue-500 ring-offset-1"></div>
-          <span className="text-sm">Cross-Relationship Child</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center justify-center w-5 h-5 bg-white rounded-full border-2 border-primary text-xs font-bold">
-            3
+    <div className="bg-white p-6 rounded-md border mb-4 shadow-sm">
+      <h3 className="text-base font-semibold mb-5 text-gray-800">Timeline Legend</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="space-y-5">
+          <h4 className="text-sm font-bold uppercase text-gray-700 border-b pb-2">RELATIONSHIPS</h4>
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-8 bg-indigo-700 rounded-md shadow-sm flex items-center justify-center">
+              <CheckCircle className="h-4 w-4 text-white" />
+            </div>
+            <span className="text-sm font-medium text-gray-800">Confirmed Relationship</span>
           </div>
-          <span className="text-sm">Number of Children</span>
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-8 bg-indigo-700/50 rounded-md shadow-sm border-2 border-dashed border-indigo-700 flex items-center justify-center">
+              <HelpCircle className="h-4 w-4 text-white" />
+            </div>
+            <span className="text-sm font-medium text-gray-800">Unconfirmed Relationship</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-8 bg-red-400 border-2 border-red-600 rounded-md shadow-sm"></div>
+            <span className="text-sm font-medium text-gray-800">Overlapping Relationships</span>
+          </div>
+        </div>
+
+        <div className="space-y-5">
+          <h4 className="text-sm font-bold uppercase text-gray-700 border-b pb-2">CHILDREN</h4>
+          <div className="flex items-center gap-4">
+            <div className="w-6 h-6 border-2 border-indigo-700 rounded-full bg-white shadow-sm flex items-center justify-center">
+              <CheckCircle className="h-3 w-3 text-indigo-700" />
+            </div>
+            <span className="text-sm font-medium text-gray-800">Confirmed Conception</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="w-6 h-6 border-2 border-dashed border-indigo-700 rounded-full bg-white shadow-sm flex items-center justify-center">
+              <HelpCircle className="h-3 w-3 text-indigo-700" />
+            </div>
+            <span className="text-sm font-medium text-gray-800">Unconfirmed Conception</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="w-6 h-6 bg-indigo-700 rounded-full shadow-sm flex items-center justify-center">
+              <CheckCircle className="h-3 w-3 text-white" />
+            </div>
+            <span className="text-sm font-medium text-gray-800">Confirmed Birth</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="w-6 h-6 bg-indigo-700/50 rounded-full shadow-sm border-2 border-dashed border-indigo-700 flex items-center justify-center">
+              <HelpCircle className="h-3 w-3 text-white" />
+            </div>
+            <span className="text-sm font-medium text-gray-800">Unconfirmed Birth</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="w-6 h-6 border-2 border-indigo-700 rounded-full bg-white ring-2 ring-red-500 ring-offset-1 shadow-sm"></div>
+            <span className="text-sm font-medium text-gray-800">Out-of-Range Conception</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="w-6 h-6 border-2 border-yellow-500 rounded-full bg-white ring-2 ring-blue-500 ring-offset-1 shadow-sm"></div>
+            <span className="text-sm font-medium text-gray-800">Cross-Relationship Child</span>
+          </div>
+        </div>
+
+        <div className="space-y-5">
+          <h4 className="text-sm font-bold uppercase text-gray-700 border-b pb-2">OTHER INDICATORS</h4>
+          <div className="flex items-center gap-4">
+            <div className="w-4 h-4 bg-white rounded-full border-2 border-gray-400 shadow-sm flex items-center justify-center">
+              <CheckCircle className="h-2 w-2 text-gray-600" />
+            </div>
+            <span className="text-sm font-medium text-gray-800">Confirmed Event</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="w-4 h-4 bg-white rounded-full border-2 border-dashed border-gray-400 shadow-sm flex items-center justify-center">
+              <HelpCircle className="h-2 w-2 text-gray-600" />
+            </div>
+            <span className="text-sm font-medium text-gray-800">Unconfirmed Event</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center justify-center w-6 h-6 bg-white rounded-full border-2 border-indigo-700 text-xs font-bold text-indigo-700 shadow-sm">
+              3
+            </div>
+            <span className="text-sm font-medium text-gray-800">Number of Children</span>
+          </div>
         </div>
       </div>
     </div>
@@ -126,7 +180,7 @@ interface TimelineProps {
   }[]
 }
 
-// Update the Timeline component to include the legend and cross-relationship detection
+// Update the Timeline component to include the improved legend and enhance visibility
 export default function Timeline({
   relationships,
   onSelectRelationship,
@@ -140,18 +194,21 @@ export default function Timeline({
   const [zoomLevel, setZoomLevel] = useState(1)
   const [scrollPosition, setScrollPosition] = useState(0)
   const [hoveredRelationship, setHoveredRelationship] = useState<string | null>(null)
+  const [showUnconfirmed, setShowUnconfirmed] = useState(true)
 
-  // Remove this calculation since we're now passing crossRelationshipChildren as a prop
-  // const crossRelationshipChildren = analysisOptions.enabled ? findCrossRelationshipChildren(relationships) : [];
+  // Filter relationships based on confirmation status
+  const filteredRelationships = showUnconfirmed ? relationships : relationships.filter((r) => r.confirmed)
 
   // Find earliest and latest dates
   const earliestDate =
-    relationships.length > 0
-      ? new Date(Math.min(...relationships.map((r) => r.startDate.getTime())))
+    filteredRelationships.length > 0
+      ? new Date(Math.min(...filteredRelationships.map((r) => r.startDate.getTime())))
       : new Date(new Date().getFullYear() - 5, 0, 1)
 
   const latestDate =
-    relationships.length > 0 ? new Date(Math.max(...relationships.map((r) => r.endDate.getTime()))) : new Date()
+    filteredRelationships.length > 0
+      ? new Date(Math.max(...filteredRelationships.map((r) => r.endDate.getTime())))
+      : new Date()
 
   // Add padding to dates (6 months before and after)
   const paddedEarliestDate = new Date(earliestDate)
@@ -298,7 +355,7 @@ export default function Timeline({
 
   // Calculate timeline height based on number of relationships and analysis row
   // Each relationship gets its own row, plus optional analysis row
-  const timelineHeight = relationships.length * 80 + (analysisOptions.enabled ? 80 : 0) + 40 // 80px per row + 40px padding
+  const timelineHeight = filteredRelationships.length * 80 + (analysisOptions.enabled ? 80 : 0) + 40 // 80px per row + 40px padding
 
   // Check if a child is cross-relationship
   const isChildCrossRelationship = (childId: string) => {
@@ -317,29 +374,38 @@ export default function Timeline({
   return (
     <div className="flex flex-col">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">Timeline</h2>
-        <div className="flex space-x-2">
-          <Button variant="outline" size="icon" onClick={handleZoomOut}>
-            <ZoomOut className="h-4 w-4" />
-          </Button>
-          <Button variant="outline" size="icon" onClick={handleZoomIn}>
-            <ZoomIn className="h-4 w-4" />
-          </Button>
-          <Button variant="outline" size="icon" onClick={handleScrollLeft}>
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button variant="outline" size="icon" onClick={handleScrollRight}>
-            <ChevronRight className="h-4 w-4" />
-          </Button>
+        <h2 className="text-xl font-semibold text-gray-800">Timeline</h2>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center space-x-2">
+            <Switch id="show-unconfirmed" checked={showUnconfirmed} onCheckedChange={setShowUnconfirmed} />
+            <Label htmlFor="show-unconfirmed" className="flex items-center gap-1 text-sm">
+              <Filter className="h-3.5 w-3.5" />
+              Show Unconfirmed
+            </Label>
+          </div>
+          <div className="flex space-x-2">
+            <Button variant="outline" size="icon" onClick={handleZoomOut}>
+              <ZoomOut className="h-4 w-4" />
+            </Button>
+            <Button variant="outline" size="icon" onClick={handleZoomIn}>
+              <ZoomIn className="h-4 w-4" />
+            </Button>
+            <Button variant="outline" size="icon" onClick={handleScrollLeft}>
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button variant="outline" size="icon" onClick={handleScrollRight}>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* Add the legend component */}
-      {relationships.length > 0 && <TimelineLegend />}
+      {/* Add the improved legend component */}
+      {filteredRelationships.length > 0 && <TimelineLegend />}
 
       <div
         ref={containerRef}
-        className="overflow-x-auto pb-4 border rounded-md bg-gray-50"
+        className="overflow-x-auto pb-4 border rounded-md bg-gray-50 shadow-sm"
         style={{
           height: `${Math.max(timelineHeight + 50, 250)}px`,
           position: "relative",
@@ -370,10 +436,11 @@ export default function Timeline({
           {/* Relationships */}
           <div className="absolute top-10 left-0 w-full">
             <TooltipProvider>
-              {relationships.map((relationship, index) => {
+              {filteredRelationships.map((relationship, index) => {
                 const left = getPositionForDate(relationship.startDate)
                 const width = getWidthForRelationship(relationship)
                 const top = index * 80 + 10 // Each relationship gets its own row, 80px apart with 10px padding
+                const isConfirmed = relationship.confirmed !== false
 
                 return (
                   <Tooltip key={relationship.id}>
@@ -386,12 +453,14 @@ export default function Timeline({
                             : hoveredRelationship === relationship.id
                               ? "opacity-90 shadow-lg z-10 scale-105 transform -translate-y-1"
                               : "hover:opacity-90 hover:shadow",
+                          !isConfirmed && "border-2 border-dashed",
                         )}
                         style={{
                           left: `${left}%`,
                           width: `${width}%`,
                           top: `${top}px`,
-                          backgroundColor: relationship.color,
+                          backgroundColor: isConfirmed ? relationship.color : `${relationship.color}80`, // 50% opacity for unconfirmed
+                          borderColor: relationship.color,
                         }}
                         onClick={() => onSelectRelationship(relationship)}
                         onMouseEnter={() => setHoveredRelationship(relationship.id)}
@@ -399,6 +468,16 @@ export default function Timeline({
                       >
                         <div className="h-full flex items-center justify-center px-3 text-white text-sm font-medium overflow-hidden">
                           {relationship.name}
+                          {!isConfirmed && (
+                            <span className="ml-1">
+                              <HelpCircle className="h-3.5 w-3.5 inline-block" />
+                            </span>
+                          )}
+                          {isConfirmed && (
+                            <span className="ml-1">
+                              <CheckCircle className="h-3.5 w-3.5 inline-block" />
+                            </span>
+                          )}
                           {relationship.moreInfoUrl && (
                             <a
                               href={relationship.moreInfoUrl}
@@ -442,16 +521,14 @@ export default function Timeline({
                           const birthPosition = getPositionForDate(child.birthDate)
                           const birthLeft = ((birthPosition - left) / width) * 100
 
-                          const isOutOfRange = isChildOutOfRange(
-                            relationship.id,
-                            child.id,
-                            outOfRangeConceptions,
-                            crossRelationshipChildren,
+                          const isOutOfRange = outOfRangeConceptions.some(
+                            (item) => item.relationshipId === relationship.id && item.childId === child.id,
                           )
                           const isCrossRelationship = isChildCrossRelationship(child.id)
                           const conceptionRelationship = isCrossRelationship
                             ? getConceptionRelationship(child.id)
                             : null
+                          const isChildConfirmed = child.confirmed !== false
 
                           return (
                             <div key={child.id}>
@@ -468,6 +545,7 @@ export default function Timeline({
                                         isCrossRelationship && analysisOptions.enabled
                                           ? "ring-2 ring-blue-500 ring-offset-1 border-yellow-500"
                                           : "",
+                                        !isChildConfirmed && "border-dashed",
                                       )}
                                       style={{
                                         left: `${conceptionLeft}%`,
@@ -476,10 +554,23 @@ export default function Timeline({
                                             ? conceptionRelationship.color
                                             : relationship.color,
                                       }}
-                                    />
+                                    >
+                                      {isChildConfirmed ? (
+                                        <CheckCircle className="h-2 w-2 text-indigo-700" />
+                                      ) : (
+                                        <HelpCircle className="h-2 w-2 text-indigo-700" />
+                                      )}
+                                    </div>
                                   </TooltipTrigger>
                                   <TooltipContent side="top" className="p-2 max-w-[300px]">
-                                    <p className="font-medium">{child.name} - Conception</p>
+                                    <div className="flex items-center gap-1">
+                                      <p className="font-medium">{child.name} - Conception</p>
+                                      {!isChildConfirmed && (
+                                        <span className="text-amber-600 bg-amber-50 text-xs px-1.5 py-0.5 rounded-full border border-amber-200">
+                                          Unconfirmed
+                                        </span>
+                                      )}
+                                    </div>
                                     <p className="text-xs">{formatDate(child.conceptionDate)}</p>
                                     {isOutOfRange && analysisOptions.enabled && (
                                       <>
@@ -528,15 +619,32 @@ export default function Timeline({
                                         isCrossRelationship && analysisOptions.enabled
                                           ? "ring-2 ring-blue-500 ring-offset-1"
                                           : "",
+                                        !isChildConfirmed && "border-2 border-dashed",
                                       )}
                                       style={{
                                         left: `${birthLeft}%`,
-                                        backgroundColor: relationship.color,
+                                        backgroundColor: isChildConfirmed
+                                          ? relationship.color
+                                          : `${relationship.color}80`,
+                                        borderColor: relationship.color,
                                       }}
-                                    />
+                                    >
+                                      {isChildConfirmed ? (
+                                        <CheckCircle className="h-2 w-2 text-white" />
+                                      ) : (
+                                        <HelpCircle className="h-2 w-2 text-white" />
+                                      )}
+                                    </div>
                                   </TooltipTrigger>
                                   <TooltipContent side="bottom" className="p-2 max-w-[300px]">
-                                    <p className="font-medium">{child.name} - Birth</p>
+                                    <div className="flex items-center gap-1">
+                                      <p className="font-medium">{child.name} - Birth</p>
+                                      {!isChildConfirmed && (
+                                        <span className="text-amber-600 bg-amber-50 text-xs px-1.5 py-0.5 rounded-full border border-amber-200">
+                                          Unconfirmed
+                                        </span>
+                                      )}
+                                    </div>
                                     <p className="text-xs">{formatDate(child.birthDate)}</p>
                                     {isOutOfRange && analysisOptions.enabled && (
                                       <>
@@ -581,17 +689,37 @@ export default function Timeline({
                             ((highlight.date.getTime() - relationship.startDate.getTime()) /
                               (relationship.endDate.getTime() - relationship.startDate.getTime())) *
                             100
+                          const isHighlightConfirmed = highlight.confirmed !== false
 
                           return (
                             <Tooltip key={hIndex}>
                               <TooltipTrigger asChild>
                                 <div
-                                  className="absolute bottom-0 w-2 h-2 bg-white rounded-full transform -translate-x-1/2 translate-y-1/2 border border-gray-300"
-                                  style={{ left: `${highlightPosition}%` }}
-                                />
+                                  className={cn(
+                                    "absolute bottom-0 w-4 h-4 bg-white rounded-full transform -translate-x-1/2 translate-y-1/2 border-2",
+                                    !isHighlightConfirmed && "border-dashed",
+                                  )}
+                                  style={{
+                                    left: `${highlightPosition}%`,
+                                    borderColor: "gray",
+                                  }}
+                                >
+                                  {isHighlightConfirmed ? (
+                                    <CheckCircle className="h-2 w-2 text-gray-600" />
+                                  ) : (
+                                    <HelpCircle className="h-2 w-2 text-gray-600" />
+                                  )}
+                                </div>
                               </TooltipTrigger>
                               <TooltipContent side="bottom" className="p-2">
-                                <p className="font-medium">{highlight.title}</p>
+                                <div className="flex items-center gap-1">
+                                  <p className="font-medium">{highlight.title}</p>
+                                  {!isHighlightConfirmed && (
+                                    <span className="text-amber-600 bg-amber-50 text-xs px-1.5 py-0.5 rounded-full border border-amber-200">
+                                      Unconfirmed
+                                    </span>
+                                  )}
+                                </div>
                                 <p className="text-xs">{formatDate(highlight.date)}</p>
                                 <p className="text-xs mt-1">{highlight.description}</p>
                               </TooltipContent>
@@ -602,7 +730,14 @@ export default function Timeline({
                     </TooltipTrigger>
                     <TooltipContent side="top" className="p-0 overflow-hidden max-w-xs">
                       <div className="p-3">
-                        <div className="font-bold text-base mb-1">{relationship.name}</div>
+                        <div className="flex items-center gap-1">
+                          <div className="font-bold text-base mb-1">{relationship.name}</div>
+                          {!isConfirmed && (
+                            <span className="text-amber-600 bg-amber-50 text-xs px-1.5 py-0.5 rounded-full border border-amber-200">
+                              Unconfirmed
+                            </span>
+                          )}
+                        </div>
                         <div className="text-sm mb-2">
                           {formatDate(relationship.startDate)} - {formatDate(relationship.endDate)}
                         </div>
@@ -615,13 +750,11 @@ export default function Timeline({
                             <div className="font-medium text-sm">Children: {relationship.children.length}</div>
                             <ul className="mt-1 text-xs space-y-1">
                               {relationship.children.map((child) => {
-                                const isOutOfRange = isChildOutOfRange(
-                                  relationship.id,
-                                  child.id,
-                                  outOfRangeConceptions,
-                                  crossRelationshipChildren,
+                                const isOutOfRange = outOfRangeConceptions.some(
+                                  (item) => item.relationshipId === relationship.id && item.childId === child.id,
                                 )
                                 const isCrossRelationship = isChildCrossRelationship(child.id)
+                                const isChildConfirmed = child.confirmed !== false
 
                                 return (
                                   <li
@@ -631,9 +764,15 @@ export default function Timeline({
                                         ? "text-red-500"
                                         : "",
                                       isCrossRelationship && analysisOptions.enabled ? "text-blue-500" : "",
+                                      "flex items-center gap-1",
                                     )}
                                   >
                                     {child.name} (Born: {formatDate(child.birthDate)})
+                                    {!isChildConfirmed && (
+                                      <span className="text-amber-600 bg-amber-50 text-[10px] px-1 py-0.5 rounded-full border border-amber-200">
+                                        ?
+                                      </span>
+                                    )}
                                     {isOutOfRange && !isCrossRelationship && analysisOptions.enabled && (
                                       <span className="ml-1">⚠️</span>
                                     )}
@@ -666,7 +805,7 @@ export default function Timeline({
 
               {/* Analysis row for overlapping relationships */}
               {analysisOptions.enabled && (
-                <div className="absolute left-0 w-full" style={{ top: `${relationships.length * 80 + 10}px` }}>
+                <div className="absolute left-0 w-full" style={{ top: `${filteredRelationships.length * 80 + 10}px` }}>
                   <div className="h-16 w-full relative">
                     <div className="absolute left-0 top-0 h-full w-full flex items-center px-4 text-sm text-muted-foreground">
                       Analysis
@@ -721,8 +860,8 @@ export default function Timeline({
         </div>
       </div>
 
-      {relationships.length === 0 && (
-        <div className="text-center py-8 text-muted-foreground">
+      {filteredRelationships.length === 0 && (
+        <div className="text-center py-8 text-gray-500">
           No relationships added yet. Click "Add Relationship" to get started.
         </div>
       )}
